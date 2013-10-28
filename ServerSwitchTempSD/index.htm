@@ -1,0 +1,203 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js'></script>
+    <title>SMART HOME "EVA"</title>
+    <script type="text/javascript">
+$(document).ready(function(){
+$(".accordion h3:first").addClass("active");
+$(".accordion p").hide();
+$(".accordion h3").click(function(){
+$(this).next("p").slideToggle("slow")
+.siblings("p:visible").slideUp("slow");
+$(this).toggleClass("active");
+$(this).siblings("h3").removeClass("active");
+});
+});
+</script>
+
+<script type='text/javascript'>
+	strRELE1 = "";
+	strRELE2 = "";
+	strRELE3 = "";
+        var RELE1_state = 0;
+        var RELE2_state = 0;
+        var RELE3_state = 0;
+function GetArduinoIO() {
+	nocache = "&nocache=" + Math.random() * 1000000;
+	var request = new XMLHttpRequest();
+	request.onreadystatechange = function() {
+	if (this.readyState == 4) {
+		if (this.status == 200) {
+		if (this.responseXML != null) {
+		// XML file received - contains analog values, switch values and LED states
+		var count;
+		// get analog inputs
+		var num_an = this.responseXML.getElementsByTagName('analog').length;
+		for (count = 0; count < num_an; count++) {
+			document.getElementsByClassName("analog")[count].innerHTML =
+			this.responseXML.getElementsByTagName('analog')[count].childNodes[0].nodeValue;
+		}
+		// RELE 1
+		if (this.responseXML.getElementsByTagName('RELE1')[0].childNodes[0].nodeValue === "on") {
+			document.getElementById("RELE_1").innerHTML = "СВЕТ ON";
+			RELE1_state = 1;
+		} else {
+			document.getElementById("RELE_1").innerHTML = "СВЕТ OFF";
+			RELE1_state = 0;
+		}
+		// RELE 2
+		if (this.responseXML.getElementsByTagName('RELE2')[0].childNodes[0].nodeValue === "on") {
+			document.getElementById("RELE_2").innerHTML = "ON";
+			RELE2_state = 1;
+		} else {
+			document.getElementById("RELE_2").innerHTML = "OFF";
+			RELE2_state = 0;
+		}
+		// RELE 3
+		if (this.responseXML.getElementsByTagName('RELE3')[0].childNodes[0].nodeValue === "on") {
+			document.getElementById("RELE_3").innerHTML = "Свет";
+			RELE3_state = 1;
+		} else {
+			document.getElementById("RELE_3").innerHTML = "Тьма";
+			RELE3_state = 0;
+		}
+		}
+		}
+	}
+    }
+
+// send HTTP GET request with LEDs to switch on/off if any
+request.open("GET", "ajax_inputs" + strRELE1 + strRELE2 + strRELE3 + nocache, true);
+request.send(null);
+setTimeout('GetArduinoIO()', 1000);
+strRELE1 = "";
+strRELE2 = "";
+strRELE3 = "";
+}
+// service LEDs when checkbox checked/unchecked
+function GetButton1() {
+	if (RELE1_state === 1) {
+		RELE1_state = 0;
+		strRELE1 = "&RELE1=0";
+	} else {
+		RELE1_state = 1;
+		strRELE1 = "&RELE1=1";
+	}
+}
+function GetButton2() {
+	if (RELE2_state === 1) {
+		RELE2_state = 0;
+		strRELE2 = "&RELE2=0";
+	} else {
+		RELE2_state = 1;
+		strRELE2 = "&RELE2=1";
+	}
+}
+function GetButton3() {
+	if (RELE3_state === 1) {
+		RELE3_state = 0;
+		strRELE3 = "&RELE3=0";
+	} else {
+		RELE3_state = 1;
+		strRELE3 = "&RELE3=1";
+	}
+}
+</script>
+
+<style type="text/css">
+body {
+	margin:0px;
+	padding:0px;
+	height:100%;
+	width:100%;
+	background:#333;
+	color:rgb(255, 255, 255);
+	overflow:auto;
+	vertical-align: baseline;
+	position:relative;
+}
+.accordion p {
+	width:250px;
+	background: #f7f7f7;
+	color:rgb(0, 0, 0);
+	margin:1px auto 1px;
+	padding: 10px 10px 10px;
+	border-left: solid 1px #c4c4c4;
+	border-right: solid 1px #c4c4c4;
+}
+.accordion h3 {
+	font: bold 170%/100% Arial, Helvetica, sans-serif;
+	border: solid 1px #c4c4c4;
+	border-bottom: none;
+	cursor: pointer;
+	width:250px;
+     height:80px;
+     background:#d64902;
+     padding:20px 0 0 20px;
+     margin:10px auto 10px;
+}
+.accordion h3:hover {
+	background-color:#d64901;
+}
+.accordion h3.active {
+	background-position: right 5px;
+}
+.button {
+      margin:0 auto;
+      width:250px;
+      height:50px;
+      background:#d64902;
+      color: white; /* Белые буквы */
+      font-size: 13pt; /* Размер шрифта в пунктах */
+}
+.button_disabled {
+    margin:0 auto;
+    width:250px;
+    height:30px;
+    background:#333;
+    color: white; /* Белые буквы */
+    font-size: 13pt; /* Размер шрифта в пунктах */
+}
+.button_text {
+     margin:0 auto;
+     width:250px;
+     height:50px;
+     background:#fff;
+     color: black; /* Белые буквы */
+     font-size: 18pt; /* Размер шрифта в пунктах */
+}
+</style>
+</head>
+
+<body onload="GetArduinoIO()">
+	<div class="accordion">
+        <h3>
+        	 <div style="border-left:1px solid white; padding:20px"> СПАЛЬНЯ </div>
+        </h3>
+        <p>
+             <button type="button" class="button_disabled" disabled>Температура в спальне</button>
+          	 <button type="button" class="button_text" disabled><span class="analog">...</span> <span > &deg;C </span></button>
+         	 <br />
+         	 <button type="button" class="button_disabled" disabled>Температура на улице</button>
+       		 <button type="button" class="button_text" disabled><span class="analog">...</span> <span > &deg;C </span></button>
+             <br />
+			 <button type="button" id="RELE_1" class="button" onclick="GetButton1()">ВКЛ. свет</button>
+        </p>
+        <h3>
+         	 <div style="border-left:1px solid white; padding:20px"> ЗАЛ </div>
+        </h3>
+        <p>
+      	     <button type="button" id="RELE_2" class="button" onclick="GetButton2()">ВКЛ. свет</button>
+		</p>
+		<h3>
+      	     <div style="border-left:1px solid white; padding:20px"> КУХНЯ </div>
+        </h3>
+        <p>
+       		 <button type="button" id="RELE_3" class="button" onclick="GetButton3()">ВКЛ. свет</button>
+		</p>
+	</div>
+</body>
+</html>
